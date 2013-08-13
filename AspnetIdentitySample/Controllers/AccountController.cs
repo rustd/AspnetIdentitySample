@@ -256,7 +256,7 @@ namespace AspnetIdentitySample.Controllers
                 // Get the information about the user from the external login provider
                 try
                 {
-                    if (await AuthenticationManager.CreateAndSignInExternalUser(HttpContext, model.LoginProvider, new User(model.UserName)))
+                    if (await AuthenticationManager.CreateAndSignInExternalUser(HttpContext, model.LoginProvider, new MyUser(model.UserName)))
                     {
                         return RedirectToLocal(returnUrl);
                     }
