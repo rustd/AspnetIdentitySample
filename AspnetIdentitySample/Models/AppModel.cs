@@ -9,19 +9,9 @@ namespace AspnetIdentitySample.Models
 {
     public class MyUser : User
     {
-        //public DateTime BirthDate { get; set; }
+      public string HomeTown { get; set; }
     }
-
-    public class CustomUserContext : IdentityStoreContext
-    {
-        public CustomUserContext(DbContext db)
-            : base(db)
-        {
-            Users = new UserStore<MyUser>(db);
-        }
-    }
-
-    public class MyDbContext : IdentityDbContext<MyUser, UserClaim, UserSecret, UserLogin, Role, UserRole>
+    public class MyDbContext : IdentityDbContextWithCustomUser<MyUser>
     {
     }
 }
