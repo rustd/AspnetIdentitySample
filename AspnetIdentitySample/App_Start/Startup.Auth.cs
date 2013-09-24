@@ -24,7 +24,7 @@ namespace AspnetIdentitySample
             //   appId: "",
             //   appSecret: "");
 
-            //app.UseGoogleAuthentication();
+            app.UseGoogleAuthentication();
         }
     }
 }

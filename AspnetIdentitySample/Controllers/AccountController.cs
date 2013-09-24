@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Validation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using AspnetIdentitySample.Models;
 
@@ -18,18 +18,23 @@ namespace AspnetIdentitySample.Controllers
     {
         public AccountController()
         {
-            IdentityStore = new IdentityStoreManager(new CustomUserContext(new MyDbContext()));
-            AuthenticationManager = new IdentityAuthenticationManager(IdentityStore);
+            IdentityManager = new AuthenticationIdentityManager(new IdentityStore(new MyDbContext()));
         }
 
-        public AccountController(IdentityStoreManager storeManager, IdentityAuthenticationManager authManager)
+        public AccountController(AuthenticationIdentityManager manager)
         {
-            IdentityStore = storeManager;
-            AuthenticationManager = authManager;
+            IdentityManager = manager;
         }
 
-        public IdentityStoreManager IdentityStore { get; private set; }
-        public IdentityAuthenticationManager AuthenticationManager { get; private set; }
+        public AuthenticationIdentityManager IdentityManager { get; private set; }
+
+        private Microsoft.Owin.Security.IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().Authentication;
+            }
+        }
 
         //
         // GET: /Account/Login
@@ -49,15 +54,19 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Validate the user password
-                if (await AuthenticationManager.CheckPasswordAndSignIn(HttpContext, model.UserName, model.Password, model.RememberMe))
+                // Validate the password
+                IdentityResult result = await IdentityManager.Authentication.CheckPasswordAndSignInAsync(AuthenticationManager, model.UserName, model.Password, model.RememberMe);
+                if (result.Success)
                 {
                     return RedirectToLocal(returnUrl);
+                }
+                else
+                {
+                    AddErrors(result);
                 }
             }
 
             // If we got this far, something failed, redisplay form
-            ModelState.AddModelError("", "The user name or password provided is incorrect.");
             return View(model);
         }
 
@@ -78,24 +87,19 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                try
+                // Create a local login before signing in the user
+                var user = new MyUser();
+                user.UserName = model.UserName;
+                user.HomeTown = model.HomeTown;
+                var result = await IdentityManager.Users.CreateLocalUserAsync(user, model.Password);
+                if (result.Success)
                 {
-                    // Create a profile, password, and link the local login before signing in the user
-                    //var user = new MyUser() { UserName = model.UserName,BirthDate=model.BirthDate };
-                    var user = new MyUser() { UserName = model.UserName };
-                    if (await IdentityStore.CreateLocalUser(user, model.Password))
-                    {
-                        await AuthenticationManager.SignIn(HttpContext, user.Id, isPersistent: false);
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Failed to register user name: " + model.UserName);
-                    }
+                    await IdentityManager.Authentication.SignInAsync(AuthenticationManager, user.Id, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
-                catch (IdentityException e)
+                else
                 {
-                    ModelState.AddModelError("", e.Message);
+                    AddErrors(result);
                 }
             }
 
@@ -109,11 +113,15 @@ namespace AspnetIdentitySample.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Disassociate(string loginProvider, string providerKey)
         {
-            ManageMessageId? message = null;
-            string userId = User.Identity.GetUserId();
-            if (await IdentityStore.RemoveLogin(User.Identity.GetUserId(), loginProvider, providerKey))
+            string message = null;
+            IdentityResult result = await IdentityManager.Logins.RemoveLoginAsync(User.Identity.GetUserId(), loginProvider, providerKey);
+            if (result.Success)
             {
-                message = ManageMessageId.RemoveLoginSuccess;
+                message = "The external login was removed.";
+            }
+            else
+            {
+                message = result.Errors.FirstOrDefault();
             }
 
             return RedirectToAction("Manage", new { Message = message });
@@ -121,14 +129,10 @@ namespace AspnetIdentitySample.Controllers
 
         //
         // GET: /Account/Manage
-        public async Task<ActionResult> Manage(ManageMessageId? message)
+        public async Task<ActionResult> Manage(string message)
         {
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
-                : "";
-            ViewBag.HasLocalPassword = await IdentityStore.HasLocalLogin(User.Identity.GetUserId());
+            ViewBag.StatusMessage = message ?? "";
+            ViewBag.HasLocalPassword = await IdentityManager.Logins.HasLocalLoginAsync(User.Identity.GetUserId());
             ViewBag.ReturnUrl = Url.Action("Manage");
             return View();
         }
@@ -140,21 +144,21 @@ namespace AspnetIdentitySample.Controllers
         public async Task<ActionResult> Manage(ManageUserViewModel model)
         {
             string userId = User.Identity.GetUserId();
-            bool hasLocalLogin = await IdentityStore.HasLocalLogin(userId);
+            bool hasLocalLogin = await IdentityManager.Logins.HasLocalLoginAsync(userId);
             ViewBag.HasLocalPassword = hasLocalLogin;
             ViewBag.ReturnUrl = Url.Action("Manage");
             if (hasLocalLogin)
             {
                 if (ModelState.IsValid)
                 {
-                    bool changePasswordSucceeded = await IdentityStore.ChangePassword(User.Identity.GetUserName(), model.OldPassword, model.NewPassword);
-                    if (changePasswordSucceeded)
+                    IdentityResult result = await IdentityManager.Passwords.ChangePasswordAsync(User.Identity.GetUserName(), model.OldPassword, model.NewPassword);
+                    if (result.Success)
                     {
-                        return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
+                        return RedirectToAction("Manage", new { Message = "Your password has been changed." });
                     }
                     else
                     {
-                        ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
+                        AddErrors(result);
                     }
                 }
             }
@@ -169,21 +173,15 @@ namespace AspnetIdentitySample.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    try
+                    // Create the local login info and link it to the user
+                    IdentityResult result = await IdentityManager.Logins.AddLocalLoginAsync(userId, User.Identity.GetUserName(), model.NewPassword);
+                    if (result.Success)
                     {
-                        // Create the local login info and link the local account to the user
-                        if (await IdentityStore.CreateLocalLogin(userId, User.Identity.GetUserName(), model.NewPassword))
-                        {
-                            return RedirectToAction("Manage", new { Message = ManageMessageId.SetPasswordSuccess });
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", "Failed to set password");
-                        }
+                        return RedirectToAction("Manage", new { Message = "Your password has been set." });
                     }
-                    catch (Exception e)
+                    else
                     {
-                        ModelState.AddModelError("", e);
+                        AddErrors(result);
                     }
                 }
             }
@@ -200,7 +198,7 @@ namespace AspnetIdentitySample.Controllers
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { loginProvider = provider, ReturnUrl = returnUrl }), AuthenticationManager);
+            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { loginProvider = provider, ReturnUrl = returnUrl }));
         }
 
         //
@@ -208,21 +206,18 @@ namespace AspnetIdentitySample.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ExternalLoginCallback(string loginProvider, string returnUrl)
         {
-            ClaimsIdentity id = await AuthenticationManager.GetExternalIdentity(HttpContext);
-            if (!AuthenticationManager.VerifyExternalIdentity(id, loginProvider))
-            {
-                return View("ExternalLoginFailure");
-            }
-
+            ClaimsIdentity id = await IdentityManager.Authentication.GetExternalIdentityAsync(AuthenticationManager);
             // Sign in this external identity if its already linked
-            if (await AuthenticationManager.SignInExternalIdentity(HttpContext, id, loginProvider))
+            IdentityResult result = await IdentityManager.Authentication.SignInExternalIdentityAsync(AuthenticationManager, id);
+            if (result.Success)
             {
                 return RedirectToLocal(returnUrl);
             }
             else if (User.Identity.IsAuthenticated)
             {
                 // Try to link if the user is already signed in
-                if (await AuthenticationManager.LinkExternalIdentity(id, User.Identity.GetUserId(), loginProvider))
+                result = await IdentityManager.Authentication.LinkExternalIdentityAsync(id, User.Identity.GetUserId());
+                if (result.Success)
                 {
                     return RedirectToLocal(returnUrl);
                 }
@@ -235,7 +230,8 @@ namespace AspnetIdentitySample.Controllers
             {
                 // Otherwise prompt to create a local user
                 ViewBag.ReturnUrl = returnUrl;
-                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = id.Name, LoginProvider = loginProvider });
+                ViewBag.LoginProvider = loginProvider;
+                return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = id.Name });
             }
         }
 
@@ -254,20 +250,16 @@ namespace AspnetIdentitySample.Controllers
             if (ModelState.IsValid)
             {
                 // Get the information about the user from the external login provider
-                try
+                var user = new MyUser();
+                user.UserName = model.UserName;
+                IdentityResult result = await IdentityManager.Authentication.CreateAndSignInExternalUserAsync(AuthenticationManager,user);
+                if (result.Success)
                 {
-                    if (await AuthenticationManager.CreateAndSignInExternalUser(HttpContext, model.LoginProvider, new MyUser(model.UserName)))
-                    {
-                        return RedirectToLocal(returnUrl);
-                    }
-                    else
-                    {
-                        return View("ExternalLoginFailure");
-                    }
+                    return RedirectToLocal(returnUrl);
                 }
-                catch (IdentityException e)
+                else
                 {
-                    ModelState.AddModelError("", e.Message);
+                    AddErrors(result);
                 }
             }
 
@@ -281,7 +273,7 @@ namespace AspnetIdentitySample.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            AuthenticationManager.SignOut(HttpContext);
+            AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
@@ -298,7 +290,7 @@ namespace AspnetIdentitySample.Controllers
         public ActionResult ExternalLoginsList(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-            return (ActionResult)PartialView("_ExternalLoginsListPartial", new List<AuthenticationDescription>(AuthenticationManager.GetExternalAuthenticationTypes(HttpContext)));
+            return (ActionResult)PartialView("_ExternalLoginsListPartial", new List<AuthenticationDescription>(AuthenticationManager.GetExternalAuthenticationTypes()));
         }
 
         [ChildActionOnly]
@@ -306,21 +298,31 @@ namespace AspnetIdentitySample.Controllers
         {
             return Task.Run(async () =>
             {
-                var linkedAccounts = await IdentityStore.GetLogins(User.Identity.GetUserId());
+                var linkedAccounts = new List<IUserLogin>(await IdentityManager.Logins.GetLoginsAsync(User.Identity.GetUserId()));
                 ViewBag.ShowRemoveButton = linkedAccounts.Count > 1;
                 return (ActionResult)PartialView("_RemoveAccountPartial", linkedAccounts);
             }).Result;
         }
 
-        //protected override void Dispose(bool disposing) {
-        //    if (disposing && IdentityStore != null) {
-        //        IdentityStore.Dispose();
-        //        IdentityStore = null;
-        //    }
-        //    base.Dispose(disposing);
-        //}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && IdentityManager != null)
+            {
+                IdentityManager.Dispose();
+                IdentityManager = null;
+            }
+            base.Dispose(disposing);
+        }
 
         #region Helpers
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
+        }
+
         private ActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
@@ -335,30 +337,20 @@ namespace AspnetIdentitySample.Controllers
 
         private class ChallengeResult : HttpUnauthorizedResult
         {
-            public ChallengeResult(string provider, string redirectUrl, IdentityAuthenticationManager manager)
+            public ChallengeResult(string provider, string redirectUrl)
             {
                 LoginProvider = provider;
                 RedirectUrl = redirectUrl;
-                Manager = manager;
             }
 
             public string LoginProvider { get; set; }
             public string RedirectUrl { get; set; }
-            public IdentityAuthenticationManager Manager { get; set; }
 
             public override void ExecuteResult(ControllerContext context)
             {
-                Manager.Challenge(context.HttpContext, LoginProvider, RedirectUrl);
+                context.HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties() { RedirectUrl = RedirectUrl }, LoginProvider);
             }
         }
-
-        public enum ManageMessageId
-        {
-            ChangePasswordSuccess,
-            SetPasswordSuccess,
-            RemoveLoginSuccess,
-        }
-
         #endregion
     }
 }
