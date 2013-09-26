@@ -318,6 +318,9 @@ namespace AspnetIdentitySample.Controllers
 
         //
         // POST: /Account/BeforePasswordReset
+
+        //http://stackoverflow.com/a/698879/208922
+
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
