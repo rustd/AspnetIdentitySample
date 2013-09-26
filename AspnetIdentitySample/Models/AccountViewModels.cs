@@ -11,6 +11,12 @@ namespace AspnetIdentitySample.Models
 
         [Required]
         public string LoginProvider { get; set; }
+
+        [Required]
+        [Display(Name = "E-mail address")]
+        [EmailAddress]
+        public string Email { get; set; }
+
     }
 
     public class ManageUserViewModel
@@ -65,5 +71,38 @@ namespace AspnetIdentitySample.Models
         public string ConfirmPassword { get; set; }
 
         public string HomeTown { get; set; }
+
+        [Required]
+        [Display(Name = "E-mail address")]
+        [EmailAddress]
+        public string Email { get; set; }
+    }
+
+    public class BeforePasswordResetViewModel
+    {
+        [Required]
+        [Display(Name = "E-mail address")]
+        [EmailAddress]
+        public string Email { get; set; }
+
+    }
+
+    public class PasswordResetViewModel
+    {
+        [Required]
+        [Display(Name = "Token")]
+        public string Token { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; }
+
     }
 }

@@ -10,6 +10,7 @@ namespace AspnetIdentitySample.Models
     public class MyUser : User
     {
       public string HomeTown { get; set; }
+      public string Email { get; set; }
     }
     public class MyDbContext : IdentityDbContextWithCustomUser<MyUser>
     {

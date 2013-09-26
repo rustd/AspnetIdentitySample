@@ -23,6 +23,10 @@
                 @Html.TextBoxFor(m => m.UserName)
                 @Html.ValidationMessageFor(m => m.UserName)
         <br />
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email)
+                @Html.ValidationMessageFor(m => m.Email)
+                    <br />
         @Html.HiddenFor(m => m.LoginProvider)
         <input type="submit" class="btn" value="Register" />
     </fieldset>
