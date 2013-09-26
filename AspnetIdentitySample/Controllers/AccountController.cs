@@ -10,6 +10,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using AspnetIdentitySample.Models;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -91,6 +93,7 @@ namespace AspnetIdentitySample.Controllers
                 var user = new MyUser();
                 user.UserName = model.UserName;
                 user.HomeTown = model.HomeTown;
+                user.Email = model.Email;
                 var result = await IdentityManager.Users.CreateLocalUserAsync(user, model.Password);
                 if (result.Success)
                 {
@@ -252,6 +255,7 @@ namespace AspnetIdentitySample.Controllers
                 // Get the information about the user from the external login provider
                 var user = new MyUser();
                 user.UserName = model.UserName;
+                user.Email = model.Email;
                 IdentityResult result = await IdentityManager.Authentication.CreateAndSignInExternalUserAsync(AuthenticationManager,user);
                 if (result.Success)
                 {
@@ -302,6 +306,120 @@ namespace AspnetIdentitySample.Controllers
                 ViewBag.ShowRemoveButton = linkedAccounts.Count > 1;
                 return (ActionResult)PartialView("_RemoveAccountPartial", linkedAccounts);
             }).Result;
+        }
+
+        //
+        // GET: /Account/BeforePasswordReset
+        [AllowAnonymous]
+        public ActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/BeforePasswordReset
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ForgotPassword(BeforePasswordResetViewModel model)
+        {
+            string message = null;
+            //the token is valid for one day
+            var until = DateTime.Now.AddDays(1);
+            //We find the user, as the token can not generate the e-mail address, 
+            //but the name should be.
+            var db = new MyDbContext();
+            var user = db.Users.SingleOrDefault(x => x.Email == model.Email);
+
+            if (null != user)
+            {
+                var token = new StringBuilder();
+
+                //Prepare a 10-character random text
+                using (RNGCryptoServiceProvider
+                                    rngCsp = new RNGCryptoServiceProvider())
+                {
+                    var data = new byte[4];
+                    for (int i = 0; i < 10; i++)
+                    {
+                        //filled with an array of random numbers
+                        rngCsp.GetBytes(data);
+                        //this is converted into a character from A to Z
+                        var randomchar = Convert.ToChar(
+                            //produce a random number 
+                            //between 0 and 25
+                                                  BitConverter.ToUInt32(data, 0) % 26
+                            //Convert.ToInt32('A')==65
+                                                  + 65
+                                         );
+                        token.Append(randomchar);
+                    }
+                }
+                //This will be the password change identifier 
+                //that the user will be sent out
+                var tokenid = token.ToString();
+
+                //Generating a token
+                var result = await IdentityManager
+                                        .Passwords
+                                        .GenerateResetPasswordTokenAsync(
+                                                      tokenid,
+                                                      user.UserName,
+                                                      until
+                                   );
+
+                if (result.Success)
+                {
+                    //send the email
+                    //...
+                }
+            }
+            message = "We have sent a password reset request if the email is verified.";
+            return RedirectToAction("PasswordReset", new { token = string.Empty, message = message });
+        }
+
+        //
+        // GET: /Account/PasswordReset
+        [AllowAnonymous]
+        public ActionResult PasswordReset(string message)
+        {
+            ViewBag.StatusMessage = message ?? "";
+            return View();
+        }
+
+        //
+        // POST: /Account/PasswordReset
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> PasswordReset(PasswordResetViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string message = null;
+                //reset the password
+                var result = await IdentityManager.Passwords.ResetPasswordAsync(model.Token, model.Password);
+                if (result.Success)
+                {
+                    message = "The password has been reset.";
+                    return RedirectToAction("PasswordResetCompleted", new { message = message });
+                }
+                else
+                {
+                    AddErrors(result);
+                }
+            }
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/PasswordResetCompleted
+        [AllowAnonymous]
+        public ActionResult PasswordResetCompleted(string message)
+        {
+            ViewBag.StatusMessage = message ?? "";
+            return View();
         }
 
         protected override void Dispose(bool disposing)
