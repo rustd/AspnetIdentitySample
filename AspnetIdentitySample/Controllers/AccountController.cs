@@ -19,6 +19,7 @@ namespace AspnetIdentitySample.Controllers
         public AccountController()
         {
             IdentityManager = new AuthenticationIdentityManager(new IdentityStore(new MyDbContext()));
+            //IdentityManager = new AuthenticationIdentityManager(new MyCustomStore(new MyDbContext()));
         }
 
         public AccountController(AuthenticationIdentityManager manager)
@@ -88,13 +89,13 @@ namespace AspnetIdentitySample.Controllers
             if (ModelState.IsValid)
             {
                 // Create a local login before signing in the user
-                var user = new MyUser();
+                var user = new MyUser() as MyUser;
                 user.UserName = model.UserName;
                 user.HomeTown = model.HomeTown;
                 var result = await IdentityManager.Users.CreateLocalUserAsync(user, model.Password);
                 if (result.Success)
                 {
-                    await IdentityManager.Authentication.SignInAsync(AuthenticationManager, user.Id, isPersistent: false);
+                    await IdentityManager.Authentication.SignInAsync(AuthenticationManager, user.Id.ToString(), isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -250,7 +251,7 @@ namespace AspnetIdentitySample.Controllers
             if (ModelState.IsValid)
             {
                 // Get the information about the user from the external login provider
-                var user = new MyUser();
+                var user = new MyUser() as MyUser;
                 user.UserName = model.UserName;
                 IdentityResult result = await IdentityManager.Authentication.CreateAndSignInExternalUserAsync(AuthenticationManager,user);
                 if (result.Success)

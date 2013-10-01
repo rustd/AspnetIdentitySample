@@ -1,10 +1,19 @@
 AspnetIdentitySample
 ====================
 This sample demonstrate how you can easily add profile data for a user.
-This is based on the ASP.NET MVC template that shipped with ASP.NET and Web Tools 2013 Preview Refresh(http://go.microsoft.com/fwlink/?LinkId=309552).
-Once you have this Preview Refresh installed you can do the same for ASP.NET Web Forms and SPA applications.
+This is based on the ASP.NET MVC template that shipped with Visual Studio 2013 RC (http://www.asp.net/visual-studio/overview/2013/release-notes-(release-candidate)).
 
-Following are the steps to Run this project
+Following are the features in this project
+- Initialize ASP.NET in App_Start by creating an Admin user and add the user to Admin Role
+- Basic Role Management which is restricted to Users in Admin Roles Only. 
+Admin can create, update, delete (remove all users from this role) roles and view the details of the role (Users in this role).
+You can look at the RolesAdmin Controller
+- Basic User Management  which is restricted to Users in Admin Roles Only. 
+Admin can create user (add a user to role as well), edit user details(such as profile data and modify the roles for the user).
+You can look at the UsersAdmin Controller
+
+
+Following are the steps to customize profile. Note once you do this then Basic User and Role Management will not work
 - Open the solution
 - Build and run
 - Regsiter a user

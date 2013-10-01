@@ -1,0 +1,42 @@
+﻿@model AspnetIdentitySample.Models.MyUser
+@{
+    ViewBag.Title = "Edit";
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+</hgroup>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+    @Html.HiddenFor(model => model.Id)
+
+
+    <fieldset class="form-horizontal">
+        <legend>Edit a user.</legend>
+        <div class="control-group">
+            @Html.LabelFor(m => m.UserName, new { @class = "control-label" })
+            <div class="controls">
+                @Html.TextBoxFor(m => m.UserName)
+            </div>
+        </div>
+        <div class="control-group">
+            @Html.LabelFor(m => m.HomeTown, new { @class = "control-label" })
+            <div class="controls">
+                @Html.TextBoxFor(m => m.HomeTown)
+            </div>
+        </div>
+        <h4>Modify Role for User</h4>
+        <hr />
+        @Html.DropDownList("RoleId", String.Empty)
+        <div class="form-actions no-color">
+            <input type="submit" value="Edit" class="btn" />
+        </div>
+    </fieldset>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
