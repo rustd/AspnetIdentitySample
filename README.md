@@ -5,7 +5,7 @@ This is based on the ASP.NET MVC template that shipped with Visual Studio 2013 R
 
 V1.0.0-RC1
 -----------
-Following are the features in this project
+Following are the features in this project. https://github.com/rustd/AspnetIdentitySample/commit/3738ae8a36bf8ad568e4593c6cd3174e6af6ed41 has the list of changes
 - Initialize ASP.NET in App_Start by creating an Admin user and add the user to Admin Role
 - Basic Role Management which is restricted to Users in Admin Roles Only. 
 Admin can create, update, delete (remove all users from this role) roles and view the details of the role (Users in this role).
