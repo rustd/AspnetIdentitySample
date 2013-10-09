@@ -1,5 +1,7 @@
-﻿using Owin;
+﻿using Microsoft.Owin;
+using Owin;
 
+[assembly: OwinStartupAttribute(typeof(AspnetIdentitySample.Startup))]
 namespace AspnetIdentitySample
 {
     public partial class Startup 

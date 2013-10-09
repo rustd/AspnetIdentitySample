@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
+using Microsoft.AspNet.Identity;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -19,24 +20,26 @@ namespace AspnetIdentitySample.Controllers
     {
         public UsersAdminController()
         {
-            IdentityManager = new AuthenticationIdentityManager(new IdentityStore(new MyDbContext()));
             context = new MyDbContext();
-
+            UserManager = new UserManager<MyUser>(new UserStore<MyUser>(context));
+            RoleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
         }
 
-        public UsersAdminController(AuthenticationIdentityManager manager)
+        public UsersAdminController(UserManager<MyUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            IdentityManager = manager;
+            UserManager = userManager;
+            RoleManager = roleManager;
         }
 
-        public AuthenticationIdentityManager IdentityManager { get; private set; }
+        public UserManager<MyUser> UserManager { get; private set; }
+        public RoleManager<IdentityRole> RoleManager { get; private set; }
         public MyDbContext context { get; private set; }
 
         //
         // GET: /Users/
         public async Task<ActionResult> Index()
         {
-            return View(await context.Users.ToListAsync());
+            return View(await UserManager.Users.ToListAsync());
         }
 
         //
@@ -47,8 +50,7 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var user = await context.Users.FindAsync(id);
-
+            var user = await UserManager.FindByIdAsync(id);
             return View(user);
         }
 
@@ -57,32 +59,34 @@ namespace AspnetIdentitySample.Controllers
         public async Task<ActionResult> Create()
         {
             //Get the list of Roles
-            ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+            ViewBag.RoleId = new SelectList(await RoleManager.Roles.ToListAsync(), "Id", "Name");
             return View();
         }
 
         //
         // POST: /Users/Create
         [HttpPost]
-        public async Task<ActionResult> Create(RegisterViewModel userViewModel, string RoleId)
+        public async Task<ActionResult>  Create(RegisterViewModel userViewModel, string RoleId)
         {
             if (ModelState.IsValid)
             {
                 var user = new MyUser();
                 user.UserName = userViewModel.UserName;
                 user.HomeTown = userViewModel.HomeTown;
-                var adminresult = await IdentityManager.Users.CreateLocalUserAsync(user, userViewModel.Password, CancellationToken.None);
+                var adminresult = await UserManager.CreateAsync(user, userViewModel.Password);
 
                 //Add User Admin to Role Admin
-                if (adminresult.Success)
+                if (adminresult.Succeeded)
                 {
                     if (!String.IsNullOrEmpty(RoleId))
                     {
-                        var result = await IdentityManager.Roles.AddUserToRoleAsync(user.Id, RoleId, CancellationToken.None);
-                        if (!result.Success)
+                        //Find Role Admin
+                        var role = await RoleManager.FindByIdAsync(RoleId);
+                        var result = await UserManager.AddToRoleAsync(user.Id, role.Name);
+                        if (!result.Succeeded)
                         {
                             ModelState.AddModelError("", result.Errors.First().ToString());
-                            ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+                            ViewBag.RoleId = new SelectList(await RoleManager.Roles.ToListAsync(), "Id", "Name");
                             return View();
                         }
                     }
@@ -90,7 +94,7 @@ namespace AspnetIdentitySample.Controllers
                 else
                 {
                     ModelState.AddModelError("", adminresult.Errors.First().ToString());
-                    ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+                    ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
                     return View();
 
                 }
@@ -98,7 +102,7 @@ namespace AspnetIdentitySample.Controllers
             }
             else
             {
-                ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+                ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
                 return View();
             }
         }
@@ -111,8 +115,9 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
-            var user = await context.Users.FindAsync(id);
+            ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
+
+            var user = await UserManager.FindByIdAsync(id); 
             if (user == null)
             {
                 return HttpNotFound();
@@ -130,46 +135,45 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
-            var user = await context.Users.FindAsync(id);
+            ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
+            var user = await UserManager.FindByIdAsync(id);
             user.UserName = formuser.UserName;
             user.HomeTown = formuser.HomeTown;
             if (ModelState.IsValid)
             {
                 //Update the user details
-                context.Entry(user).State = EntityState.Modified;
-                await context.SaveChangesAsync();
-
+                await UserManager.UpdateAsync(user);
+                
                 //If user has existing Role then remove the user from the role
                 // This also accounts for the case when the Admin selected Empty from the drop-down and
                 // this means that all roles for the user must be removed
-                var rolesForUser = await IdentityManager.Roles.GetRolesForUserAsync(id, CancellationToken.None);
+                var rolesForUser = await UserManager.GetRolesAsync(id);
                 if (rolesForUser.Count() > 0)
-                {
-                    
+                {   
                     foreach (var item in rolesForUser)
                     {
-                        var result = await IdentityManager.Roles.RemoveUserFromRoleAsync(user.Id, item.Id, CancellationToken.None);
+                        var result = await UserManager.RemoveFromRoleAsync(id,item);
                     }
                 }
 
                 if (!String.IsNullOrEmpty(RoleId))
                 {
+                    //Find Role
+                    var role = await RoleManager.FindByIdAsync(RoleId);
                     //Add user to new role
-                    var result = await IdentityManager.Roles.AddUserToRoleAsync(user.Id, RoleId, CancellationToken.None);
-                    if (!result.Success)
+                    var result = await UserManager.AddToRoleAsync(id,role.Name);
+                    if (!result.Succeeded)
                     {
                         ModelState.AddModelError("", result.Errors.First().ToString());
-                        ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+                        ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
                         return View();
                     }
                 }
-
                 return RedirectToAction("Index");
             }
             else
             {
-                ViewBag.RoleId = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
+                ViewBag.RoleId = new SelectList(RoleManager.Roles, "Id", "Name");
                 return View();
             }
         }

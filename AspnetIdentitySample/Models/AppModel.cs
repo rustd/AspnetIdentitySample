@@ -9,12 +9,16 @@ using System.Web;
 
 namespace AspnetIdentitySample.Models
 {
-    public class MyUser : User
+    public class MyUser : IdentityUser
     {
         public string HomeTown { get; set; }
     }
-    public class MyDbContext : IdentityDbContextWithCustomUser<MyUser>
+    public class MyDbContext : IdentityDbContext<MyUser>
     {
+        public MyDbContext()
+            : base("DefaultConnection")
+        {
+        }
     }
 
 

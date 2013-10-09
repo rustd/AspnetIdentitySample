@@ -50,9 +50,8 @@
     </div>
     <div class="span6">
         <section id="socialLoginForm">
-
-            @Html.Action("ExternalLoginsList", new { ReturnUrl = ViewBag.ReturnUrl })
-        </section>
+            @Html.Partial("_ExternalLoginsListPartial", new { Action = "ExternalLogin", ReturnUrl = ViewBag.ReturnUrl })
+            </section>
     </div>
 </div>
 @section Scripts {

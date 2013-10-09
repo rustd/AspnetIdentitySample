@@ -11,31 +11,34 @@ using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
+using Microsoft.AspNet.Identity;
 
 namespace AspnetIdentitySample.Controllers
 {
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     public class RolesAdminController : Controller
     {
         public RolesAdminController()
         {
-            IdentityManager = new AuthenticationIdentityManager(new IdentityStore(new MyDbContext()));
             context = new MyDbContext();
-
+            UserManager = new UserManager<MyUser>(new UserStore<MyUser>(context));
+            RoleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
         }
 
-        public RolesAdminController(AuthenticationIdentityManager manager)
+        public RolesAdminController(UserManager<MyUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            IdentityManager = manager;
+            UserManager = userManager;
+            RoleManager = roleManager;
         }
 
-        public AuthenticationIdentityManager IdentityManager { get; private set; }
+        public UserManager<MyUser> UserManager { get; private set; }
+        public RoleManager<IdentityRole> RoleManager { get; private set; }
         public MyDbContext context { get; private set; }
         //
         // GET: /Roles/
         public async Task<ActionResult> Index()
         {
-            return View(await context.Roles.ToListAsync());
+            return View(RoleManager.Roles);
         }
 
         //
@@ -46,7 +49,7 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Role role = await IdentityManager.Roles.FindRoleAsync(id, CancellationToken.None) as Role;
+            var role = await RoleManager.FindByIdAsync(id);
             return View(role);
         }
 
@@ -64,12 +67,11 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                var role = new Role(roleViewModel.Name);
-                // TODO: Add insert logic here
-                var roleresult = await IdentityManager.Roles.CreateRoleAsync(role, CancellationToken.None);
-                if(!roleresult.Success)
+                var role = new IdentityRole(roleViewModel.Name);
+                var roleresult = await RoleManager.CreateAsync(role);
+                if (!roleresult.Succeeded)
                 {
-                    ModelState.AddModelError("",roleresult.Errors.First().ToString());
+                    ModelState.AddModelError("", roleresult.Errors.First().ToString());
                     return View();
                 }
                 return RedirectToAction("Index");
@@ -88,7 +90,7 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Role role = await IdentityManager.Roles.FindRoleAsync(id,CancellationToken.None) as Role;
+            var role = await RoleManager.FindByIdAsync(id);
             if (role == null)
             {
                 return HttpNotFound();
@@ -101,12 +103,16 @@ namespace AspnetIdentitySample.Controllers
         [HttpPost]
 
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "Name,Id")] Role role)
+        public async Task<ActionResult> Edit([Bind(Include = "Name,Id")] IdentityRole role)
         {
             if (ModelState.IsValid)
             {
-                context.Entry(role).State = EntityState.Modified;
-                await context.SaveChangesAsync();
+                var result = await RoleManager.UpdateAsync(role);
+                if(!result.Succeeded)
+                {
+                    ModelState.AddModelError("", result.Errors.First().ToString());
+                    return View();   
+                }
                 return RedirectToAction("Index");
             }
             else
@@ -123,7 +129,7 @@ namespace AspnetIdentitySample.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Role role = await IdentityManager.Roles.FindRoleAsync(id, CancellationToken.None) as Role;
+            var role = await RoleManager.FindByIdAsync(id);
             if (role == null)
             {
                 return HttpNotFound();
@@ -143,14 +149,15 @@ namespace AspnetIdentitySample.Controllers
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
                 }
-                var  result = await IdentityManager.Roles.DeleteRoleAsync(id, false, CancellationToken.None);
-                if (!result.Success)
+                var role = await RoleManager.FindByIdAsync(id);
+                var result = await RoleManager.DeleteAsync(role);
+                if (!result.Succeeded)
                 {
-                    ModelState.AddModelError("",result.Errors.First().ToString());
+                    ModelState.AddModelError("", result.Errors.First().ToString());
                     return View();
                 }
                 return RedirectToAction("Index");
-            } 
+            }
             else
             {
                 return View();
