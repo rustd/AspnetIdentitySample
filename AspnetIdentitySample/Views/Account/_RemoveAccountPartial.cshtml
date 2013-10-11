@@ -1,8 +1,8 @@
-@model ICollection<Microsoft.AspNet.Identity.IUserLogin>
+@model ICollection<Microsoft.AspNet.Identity.UserLoginInfo>
 
 @if (Model.Count > 0)
 {
-    <h3>Registered Logins</h3>
+    <h4>Registered Logins</h4>
     <table class="table">
         <tbody>
             @foreach (var account in Model)
@@ -14,19 +14,18 @@
                         {
                             using (Html.BeginForm("Disassociate", "Account"))
                             {
-                            @Html.AntiForgeryToken()
-                            <fieldset>
-                                @Html.Hidden("loginProvider", account.LoginProvider)
-                                @Html.Hidden("providerKey", account.ProviderKey)
-                                    <input type="submit" class="btn" value="Remove" title="Remove this @account.LoginProvider login from your account" />
-                                
-                            </fieldset>
+                                @Html.AntiForgeryToken()
+                                <div>
+                                    @Html.Hidden("loginProvider", account.LoginProvider)
+                                    @Html.Hidden("providerKey", account.ProviderKey)
+                                    <input type="submit" class="btn btn-default" value="Remove" title="Remove this @account.LoginProvider login from your account" />
+                                </div>
                             }
                         }
                         else
                         {
                             @: &nbsp;
-                    }
+                        }
                     </td>
                 </tr>
             }

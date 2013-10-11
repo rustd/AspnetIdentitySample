@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Owin.Security;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin.Security;
 using AspnetIdentitySample.Models;
 
 namespace AspnetIdentitySample.Controllers
@@ -14,16 +16,17 @@ namespace AspnetIdentitySample.Controllers
     public class AccountController : Controller
     {
         public AccountController()
-            : this(new UserManager<MyUser>(new UserStore<MyUser>()))
+            : this(new UserManager<MyUser>(new UserStore<MyUser>(new MyDbContext())))
         {
-            }
+        }
 
         public AccountController(UserManager<MyUser> userManager)
         {
             UserManager = userManager;
         }
+
         public UserManager<MyUser> UserManager { get; private set; }
-        public RoleManager<IdentityRole> RoleManager { get; private set; }
+
         //
         // GET: /Account/Login
         [AllowAnonymous]
@@ -75,11 +78,11 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new MyUser() { UserName = model.UserName, HomeTown=model.HomeTown };
+                var user = new MyUser() { UserName = model.UserName };
+                user.HomeTown = model.HomeTown;
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    //await UserManager.AddToRoleAsync(user.Id, "Admin");
                     await SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
@@ -200,7 +203,7 @@ namespace AspnetIdentitySample.Controllers
                 return RedirectToAction("Login");
             }
 
-            // Sign in this external identity if its already linked
+            // Sign in the user with this external login provider if the user already has a login
             var user = await UserManager.FindAsync(loginInfo.Login);
             if (user != null)
             {
@@ -209,7 +212,7 @@ namespace AspnetIdentitySample.Controllers
             }
             else
             {
-                // Otherwise prompt to create a local user
+                // If the user does not have an account, then prompt the user to create an account
                 ViewBag.ReturnUrl = returnUrl;
                 ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                 return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { UserName = loginInfo.DefaultUserName });
@@ -263,15 +266,14 @@ namespace AspnetIdentitySample.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                //var user = new AzureUser() { UserName = model.UserName };
                 var user = new MyUser() { UserName = model.UserName };
+                
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        await UserManager.AddClaimAsync(user.Id, new Claim("ExternalClaim", "Hey"));
                         await SignInAsync(user, isPersistent: false);
                         return RedirectToLocal(returnUrl);
                     }
@@ -320,10 +322,10 @@ namespace AspnetIdentitySample.Controllers
         }
 
         #region Helpers
-        // Used for XSRF when linking external logins
+        // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private Microsoft.Owin.Security.IAuthenticationManager AuthenticationManager
+        private IAuthenticationManager AuthenticationManager
         {
             get
             {
@@ -348,7 +350,12 @@ namespace AspnetIdentitySample.Controllers
 
         private bool HasPassword()
         {
-            return UserManager.HasPassword(User.Identity.GetUserId());
+            var user = UserManager.FindById(User.Identity.GetUserId());
+            if (user != null)
+            {
+                return user.PasswordHash != null;
+            }
+            return false;
         }
 
         public enum ManageMessageId
