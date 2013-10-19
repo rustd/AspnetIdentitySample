@@ -181,6 +181,7 @@
     <Compile Include="Models\AppModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Controllers\ToDoController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-responsive.css" />
@@ -232,6 +233,12 @@
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\ToDo\Create.cshtml" />
+    <Content Include="Views\ToDo\Delete.cshtml" />
+    <Content Include="Views\ToDo\Details.cshtml" />
+    <Content Include="Views\ToDo\Edit.cshtml" />
+    <Content Include="Views\ToDo\Index.cshtml" />
+    <Content Include="Views\ToDo\All.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,44 @@
+﻿@model IEnumerable<AspnetIdentitySample.Models.ToDo>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>List of ToDoes for all Users</h2>
+<p>
+    Notice that we can see the User info (UserName) and profile info such as HomeTown for the user as well.
+    This was possible because we associated the User object with a ToDo object and hence
+    we can get this rich behavior.
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.IsDone)
+        </th>
+        <th>@Html.DisplayNameFor(model => model.User.UserName)</th>
+        <th>@Html.DisplayNameFor(model => model.User.HomeTown)</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.HomeTown)
+            </td>
+        </tr>
+    }
+
+</table>
