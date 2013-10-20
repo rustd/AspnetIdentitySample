@@ -26,6 +26,13 @@ AspnetIdentitySample
 
 </li>
 <li>
+    <b>Customize Table Name for AspNetUsers</b>
+        If you want to change the default table name for the Users table, then you can do so
+        by overriding the default mapping of the EF Code First types to table names.
+        <strong>Look in Models\AppModel.cs on how we override the table name in ModelCreating event of DbContext</strong>
+        <a href="http://msdn.microsoft.com/en-US/data/jj591617">For more info on override ModelCreating please visit</a>
+</li>
+<li>
     <b>Register a user, Login</b>
     Click Register and see the code in AccountController.cs and Register Action.
         Click Login and see the code in AccountController.cs and Login Action.
