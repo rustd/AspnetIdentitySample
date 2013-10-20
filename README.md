@@ -21,14 +21,14 @@ AspnetIdentitySample
 </li>
 <li>
     <b>Display profile data for the user</b>
-        Click @Html.ActionLink("My Profile", "Profile", "Home") view profile info for the logged in user.
+        Click Profile view profile info for the logged in user.
         For the code look in <strong>HomeController.cs Profile Action</strong>
 
 </li>
 <li>
     <b>Register a user, Login</b>
-    Click @Html.ActionLink("Register", "Register", "Account") and see the code in AccountController.cs and Register Action.
-        Click @Html.ActionLink("Log in", "Login", "Account") and see the code in AccountController.cs and Login Action.
+    Click Register and see the code in AccountController.cs and Register Action.
+        Click Login and see the code in AccountController.cs and Login Action.
 </li>
 <li>
     <b>Basic Role Management</b>
