@@ -3,29 +3,73 @@
 }
 
 <div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+    <h1>ASP.NET Identity</h1>
+    <p class="lead">ASP.NET Identity is the new membership system for ASP.NET apps</p>
+    <p><a href="http://www.asp.net/aspnet/overview/authentication-and-identity" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
 </div>
+<h3>Following are the features of ASP.NET Identity in this sample</h3>
+<dl>
+    <dt>Initialize ASP.NET Identity</dt>
+    <dd>
+        You can initialize ASP.NET Identity when the application starts. Since ASP.NET Identity is Entity Framework based in this sample,
+        you can create DatabaseInitializer which is configured to get called each time the app starts.
+        <strong>Please look in Global.asax and App_Start\IdentityConfig.cs</strong>
+        This code shows the following
+        <ul>
+            <li>Create user</li>
+            <li>Create user with password</li>
+            <li>Create Roles</li>
+            <li>Add Users to Roles</li>
+        </ul>
+    </dd>
+</dl>
+<dl>
+    <dt>Add profile data for the user</dt>
+    <dd>
+        <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
+    </dd>
+</dl>
+<dl>
+    <dt>Display profile data for the user</dt>
+    <dd>
+        Click @Html.ActionLink("My Profile", "Profile", "Home") view profile info for the logged in user.
+        For the code look in <strong>HomeController.cs Profile Action</strong>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="http://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+    </dd>
+</dl>
+<dl>
+    <dt>Register a user, Login</dt>
+    <dd>
+        Click @Html.ActionLink("Register", "Register", "Account") and see the code in AccountController.cs and Register Action.
+        Click @Html.ActionLink("Log in", "Login", "Account") and see the code in AccountController.cs and Login Action.
+    </dd>
+</dl>
+<dl>
+    <dt>Basic Role Management</dt>
+    <dd>
+        Do Create, Update, List and Delete Roles.
+        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+       
+    </dd>
+</dl>
+<dl>
+    <dt>Basic User Management</dt>
+    <dd>
+        Do Create, Update, List and Delete Users.
+        Assign a Role to a User.
+        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+    </dd>
+</dl>
+<dl>
+    <dt>Associating ToDoes with User</dt>
+    <dd>
+        This example shows how you can create a ToDo application where you can associate ToDoes with a User.
+        Following are the salient features of this sample.
+        <ul>
+            <li>Create ToDo model and associate User in EF Code First. Goto Models\AppModel.cs </li>
+            <li>Only Authenticated Users can Create ToDo</li>
+            <li>When you create/list ToDo, we can filter by User. Look at ToDoController</li>
+            <li>Only Users in Role Admin can see all ToDoes. Look at ToDoController and All action.</li>
+        </ul>
+    </dd>
+</dl>

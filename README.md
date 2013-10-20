@@ -1,8 +1,58 @@
 AspnetIdentitySample
 ====================
-This sample demonstrate how you can easily add profile data for a user.
-This is based on the ASP.NET MVC template that shipped with Visual Studio 2013 RC (http://www.asp.net/visual-studio/overview/2013/release-notes-(release-candidate)).
+<h3>Following are the features of ASP.NET Identity in this sample</h3>
+<ul>
+<li>
+    <b>Initialize ASP.NET Identity</b>
+        You can initialize ASP.NET Identity when the application starts. Since ASP.NET Identity is Entity Framework based in this sample,
+        you can create DatabaseInitializer which is configured to get called each time the app starts.
+        <strong>Please look in Global.asax and App_Start\IdentityConfig.cs</strong>
+        This code shows the following
+        <ul>
+            <li>Create user</li>
+            <li>Create user with password</li>
+            <li>Create Roles</li>
+            <li>Add Users to Roles</li>
+        </ul>
+</li>
+<li>
+    <b>Add profile data for the user</b>
+        <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
+</li>
+<li>
+    <b>Display profile data for the user</b>
+        Click @Html.ActionLink("My Profile", "Profile", "Home") view profile info for the logged in user.
+        For the code look in <strong>HomeController.cs Profile Action</strong>
 
+</li>
+<li>
+    <b>Register a user, Login</b>
+    Click @Html.ActionLink("Register", "Register", "Account") and see the code in AccountController.cs and Register Action.
+        Click @Html.ActionLink("Log in", "Login", "Account") and see the code in AccountController.cs and Login Action.
+</li>
+<li>
+    <b>Basic Role Management</b>
+    Do Create, Update, List and Delete Roles.
+        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+</li>
+<li>
+    <b>Basic User Management</b>
+        Do Create, Update, List and Delete Users.
+        Assign a Role to a User.
+        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+</li>
+<li>
+    <b>Associating ToDoes with User</b>
+        This example shows how you can create a ToDo application where you can associate ToDoes with a User.
+        Following are the salient features of this sample.
+        <ul>
+            <li>Create ToDo model and associate User in EF Code First. Goto Models\AppModel.cs </li>
+            <li>Only Authenticated Users can Create ToDo</li>
+            <li>When you create/list ToDo, we can filter by User. Look at ToDoController</li>
+            <li>Only Users in Role Admin can see all ToDoes. Look at ToDoController and All action.</li>
+        </ul>
+</li>
+<ul>
 v1.0.0-RTM
 -----------
 Following are the features in this project. https://github.com/rustd/AspnetIdentitySample/commit/776680f37657affff109a1107c90cde4963d2eb2 has the list of changes as well the code to change to migrate from v1.0-RC1 to v1.0-RTM
