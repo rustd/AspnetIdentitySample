@@ -25,8 +25,6 @@ namespace AspnetIdentitySample
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             Database.SetInitializer<MyDbContext>(new MyDbInitializer());
-            IdentityConfig.Initialize();
-            
         }
     }
 
