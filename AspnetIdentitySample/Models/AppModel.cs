@@ -12,6 +12,7 @@ namespace AspnetIdentitySample.Models
     public class MyUser : IdentityUser
     {
         public string HomeTown { get; set; }
+        public virtual ICollection<ToDo> ToDoes { get; set; }
     }
 
     public class ToDo
@@ -19,10 +20,6 @@ namespace AspnetIdentitySample.Models
         public int Id { get; set; }
         public string Description { get; set; }
         public bool IsDone { get; set; }
-
-        // Instead of storing MyUser you can also store UserName or UserId
-        // and do the lookup in the ToDo Controller by UserName or UserId
-        // when doing a Create, Update, Lookup or delete operation.
         public virtual MyUser User { get; set; }
     }
     public class MyDbContext : IdentityDbContext<MyUser>
