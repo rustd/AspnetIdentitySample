@@ -1,5 +1,13 @@
 AspnetIdentitySample
 ====================
+
+<h3>Running this sample</h3>
+<ul>
+<li>This sample uses the Nightly builds of ASP.NET Identity. Please refer to this article http://blogs.msdn.com/b/webdev/archive/2013/10/09/asp-net-identity-nuget-packages-for-the-nightly-builds-are-available-on-myget.aspx 
+for configuring the Nightly feed and installing Nightly packages of ASP.NET Identity
+</li>
+</ul>
+
 <h3>Following are the features of ASP.NET Identity in this sample</h3>
 <ul>
 <li>
