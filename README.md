@@ -1,10 +1,11 @@
 AspnetIdentitySample
 ====================
+<h3>What's in this sample</h3>
+This is a sample which shows most of the common features of ASP.NET Identity. For more information on it, please visit http://asp.net/identity 
 
 <h3>Running this sample</h3>
 <ul>
-<li>This sample uses the Nightly builds of ASP.NET Identity. Please refer to this article http://blogs.msdn.com/b/webdev/archive/2013/10/09/asp-net-identity-nuget-packages-for-the-nightly-builds-are-available-on-myget.aspx 
-for configuring the Nightly feed and installing Nightly packages of ASP.NET Identity
+<li>This sample uses the latest pre-release builds of ASP.NET Identity. You should be able to sync and run this sample.
 </li>
 </ul>
 
@@ -26,6 +27,11 @@ for configuring the Nightly feed and installing Nightly packages of ASP.NET Iden
 <li>
     <b>Add profile data for the user</b>
         <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
+<ul>
+                    <li>Add profile information in the Users Table</li>
+                    <li>Add profile information in a different table</li>
+                    <li>Look in Models\AppModel.cs for examples</li>
+                </ul>
 </li>
 <li>
     <b>Display profile data for the user</b>
@@ -40,6 +46,42 @@ for configuring the Nightly feed and installing Nightly packages of ASP.NET Iden
         <strong>Look in Models\AppModel.cs on how we override the table name in ModelCreating event of DbContext</strong>
         <a href="http://msdn.microsoft.com/en-US/data/jj591617">For more info on override ModelCreating please visit</a>
 </li>
+<li><b>Claims</b>
+  
+                You can store information about the user as Claims as well. This sample shows the different places where you can inject claims.
+                <ul>
+                    <li>Add claims to the Claims table when the User regsiters an account. Look in AccountController\Register action where I am storing Gender as a Claim</li>
+                    <li>
+                        Add a claim before the User Signs In. Look in AccountController\SignIn method where I am adding HomeTown as a claim. As compared to the previous case I
+                        am not storing the HomeTownClaim in the database.
+                    </li>
+                    <li>In both these case the Claim is set on the IPrincipal when the User Signs In</li>
+                </ul>
+        
+</li>
+<li>
+        <b>ClaimsIdentityFactory</b>
+                When you SignIn, the UserManager creates a ClaimsIdentity by using a ClaimsIdentityFactory. This factory creates a claimsIdentity which contains Roles, UserId and UserName.
+                For most apps this is sufficient. ClaimsIdentityFactory provides a central place where you can control what are the default set of claims generated for the User. In my example, let's say I do
+                not care about Roles and I want to store LastLoginTime as a Claim, then I can provide my own ClaimsIdentityFactory to the UserManager.
+                <ul>
+                    <li>Look at Validation\MyClaimsIdentityFactory.cs for an implementation</li>
+                    <li>Look at Controller\ClaimsIdentityFactoryController.cs on how we can register a ClaimsIdentityFactory with the UserManager</li>
+                </ul>
+       
+    </li>
+<li>
+       <b>Validation</b>
+             When you create a User using a username or password, the Identity system performs validation on the username and password, and the passwords are hashed before they are
+                stored in the database. You can customize the validation by changing some of the properties of the validators such as Turn alphanumeric on/off, set minimum password length
+                or you can write your own custom validators and register them with the Manager. You can use the same approach for UserManager and RoleManager.
+                <ul>
+                    <li>Look at Controllers\ValidationController.cs Default Action on how to tweak the default settings for the Validators</li>
+                    <li>Look at IdentityExtensibility\MyValidation.cs to see how you can implement the different validators</li>
+                    <li>Look at Controllers\ValidationController.cs Cutomize Action on how you can use the custom validators with the Managers</li>
+                </ul>
+
+    </li>
 <li>
     <b>Register a user, Login</b>
     Click Register and see the code in AccountController.cs and Register Action.

@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using AspnetIdentitySample.Models;
+using Owin;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -16,16 +17,16 @@ namespace AspnetIdentitySample.Controllers
     public class AccountController : Controller
     {
         public AccountController()
-            : this(new UserManager<MyUser>(new UserStore<MyUser>(new MyDbContext())))
+            : this(new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new MyDbContext())))
         {
         }
 
-        public AccountController(UserManager<MyUser> userManager)
+        public AccountController(UserManager<ApplicationUser> userManager)
         {
             UserManager = userManager;
         }
 
-        public UserManager<MyUser> UserManager { get; private set; }
+        public UserManager<ApplicationUser> UserManager { get; private set; }
 
         //
         // GET: /Account/Login
@@ -78,9 +79,15 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new MyUser() { UserName = model.UserName };
+                var user = new ApplicationUser() { UserName = model.UserName };
                 user.HomeTown = model.HomeTown;
+                user.MyUserInfo = new MyUserInfo() { FirstName = model.UserName };
+                
+                // Store Gender as Claim
+                user.Claims.Add(new IdentityUserClaim() { ClaimType = ClaimTypes.Gender, ClaimValue = "Male" });
+                    
                 var result = await UserManager.CreateAsync(user, model.Password);
+                
                 if (result.Succeeded)
                 {
                     await SignInAsync(user, isPersistent: false);
@@ -266,7 +273,7 @@ namespace AspnetIdentitySample.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new MyUser() { UserName = model.UserName };
+                var user = new ApplicationUser() { UserName = model.UserName };
                 
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
@@ -333,10 +340,13 @@ namespace AspnetIdentitySample.Controllers
             }
         }
 
-        private async Task SignInAsync(MyUser user, bool isPersistent)
+        private async Task SignInAsync(ApplicationUser user, bool isPersistent)
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             var identity = await UserManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
+            // Add more custom claims here if you want. Eg HomeTown can be a claim for the User
+            var homeclaim = new Claim(ClaimTypes.Country, user.HomeTown);
+            identity.AddClaim(homeclaim);
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
         }
 

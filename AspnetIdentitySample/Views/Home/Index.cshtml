@@ -4,83 +4,151 @@
 
 <div class="jumbotron">
     <h1>ASP.NET Identity</h1>
-    <p class="lead">ASP.NET Identity is the new membership system for ASP.NET apps</p>
-    <p><a href="http://www.asp.net/aspnet/overview/authentication-and-identity" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+    <p class="lead">ASP.NET Identity is the membership system for ASP.NET apps</p>
+    <p><a href="http://www.asp.net/aspnet/identity" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
 </div>
 <h3>Following are the features of ASP.NET Identity in this sample</h3>
-<dl>
-    <dt>Initialize ASP.NET Identity</dt>
-    <dd>
-        You can initialize ASP.NET Identity when the application starts. Since ASP.NET Identity is Entity Framework based in this sample,
-        you can create DatabaseInitializer which is configured to get called each time the app starts.
-        <strong>Please look in Global.asax and App_Start\IdentityConfig.cs</strong>
-        This code shows the following
-        <ul>
-            <li>Create user</li>
-            <li>Create user with password</li>
-            <li>Create Roles</li>
-            <li>Add Users to Roles</li>
-        </ul>
-    </dd>
-</dl>
+<ol>
+    <li>
+        <dl>
+            <dt>Initialize ASP.NET Identity</dt>
+            <dd>
+                You can initialize ASP.NET Identity when the application starts. Since ASP.NET Identity is Entity Framework based in this sample,
+                you can create DatabaseInitializer which is configured to get called each time the app starts.
+                <strong>Please look in Global.asax and App_Start\IdentityConfig.cs</strong>
+                This code shows the following
+                <ul>
+                    <li>When should the Initializer run and when should the database be created</li>
+                    <li>Create user</li>
+                    <li>Create user with password</li>
+                    <li>Create Roles</li>
+                    <li>Add Users to Roles</li>
+                </ul>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Customize Table Name for AspNetUsers</dt>
+            <dd>
+                If you want to change the default table name for the Users table, then you can do so
+                by overriding the default mapping of the EF Code First types to table names.
+                <strong>Look in Models\AppModel.cs on how we override the table name in ModelCreating event of DbContext</strong>
+                <a href="http://msdn.microsoft.com/en-US/data/jj591617">For more info on override ModelCreating please visit</a>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Add profile data for the user</dt>
+            <dd>
+                <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
 
-<dl>
-    <dt>Customize Table Name for AspNetUsers</dt>
-    <dd>
-        If you want to change the default table name for the Users table, then you can do so
-        by overriding the default mapping of the EF Code First types to table names.
-        <strong>Look in Models\AppModel.cs on how we override the table name in ModelCreating event of DbContext</strong>
-        <a href="http://msdn.microsoft.com/en-US/data/jj591617">For more info on override ModelCreating please visit</a>
-    </dd>
-</dl>
+                <ul>
+                    <li>Add profile information in the Users Table</li>
+                    <li>Add profile information in a different table</li>
+                    <li>Look in Models\AppModel.cs for examples</li>
+                </ul>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Display profile data for the user</dt>
+            <dd>
+                Click @Html.ActionLink("My Profile", "Profile", "Home") view profile info for the logged in user.
+                For the code look in <strong>HomeController.cs Profile Action</strong>
 
-<dl>
-    <dt>Add profile data for the user</dt>
-    <dd>
-        <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
-    </dd>
-</dl>
-<dl>
-    <dt>Display profile data for the user</dt>
-    <dd>
-        Click @Html.ActionLink("My Profile", "Profile", "Home") view profile info for the logged in user.
-        For the code look in <strong>HomeController.cs Profile Action</strong>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Claims</dt>
+            <dd>
+                You can store information about the user as Claims as well. This sample shows the different places where you can inject claims.
+                <ul>
+                    <li>Add claims to the Claims table when the User regsiters an account. Look in AccountController\Register action where I am storing Gender as a Claim</li>
+                    <li>
+                        Add a claim before the User Signs In. Look in AccountController\SignIn method where I am adding HomeTown as a claim. As compared to the previous case I
+                        am not storing the HomeTownClaim in the database.
+                    </li>
+                    <li>In both these case the Claim is set on the IPrincipal when the User Signs In</li>
+                </ul>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>ClaimsIdentityFactory</dt>
+            <dd>
+                When you SignIn, the UserManager creates a ClaimsIdentity by using a ClaimsIdentityFactory. This factory creates a claimsIdentity which contains Roles, UserId and UserName.
+                For most apps this is sufficient. ClaimsIdentityFactory provides a central place where you can control what are the default set of claims generated for the User. In my example, let's say I do
+                not care about Roles and I want to store LastLoginTime as a Claim, then I can provide my own ClaimsIdentityFactory to the UserManager.
+                <ul>
+                    <li>Look at Validation\MyClaimsIdentityFactory.cs for an implementation</li>
+                    <li>Look at Controller\ClaimsIdentityFactoryController.cs on how we can register a ClaimsIdentityFactory with the UserManager</li>
+                </ul>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Validation</dt>
+            <dd>
+                When you create a User using a username or password, the Identity system performs validation on the username and password, and the passwords are hashed before they are
+                stored in the database. You can customize the validation by changing some of the properties of the validators such as Turn alphanumeric on/off, set minimum password length
+                or you can write your own custom validators and register them with the Manager. You can use the same approach for UserManager and RoleManager.
+                <ul>
+                    <li>Look at Controllers\ValidationController.cs Default Action on how to tweak the default settings for the Validators</li>
+                    <li>Look at IdentityExtensibility\MyValidation.cs to see how you can implement the different validators</li>
+                    <li>Look at Controllers\ValidationController.cs Cutomize Action on how you can use the custom validators with the Managers</li>
+                </ul>
 
-    </dd>
-</dl>
-<dl>
-    <dt>Register a user, Login</dt>
-    <dd>
-        Click @Html.ActionLink("Register", "Register", "Account") and see the code in AccountController.cs and Register Action.
-        Click @Html.ActionLink("Log in", "Login", "Account") and see the code in AccountController.cs and Login Action.
-    </dd>
-</dl>
-<dl>
-    <dt>Basic Role Management</dt>
-    <dd>
-        Do Create, Update, List and Delete Roles.
-        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
-
-    </dd>
-</dl>
-<dl>
-    <dt>Basic User Management</dt>
-    <dd>
-        Do Create, Update, List and Delete Users.
-        Assign a Role to a User.
-        Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
-    </dd>
-</dl>
-<dl>
-    <dt>Associating ToDoes with User</dt>
-    <dd>
-        This example shows how you can create a ToDo application where you can associate ToDoes with a User.
-        Following are the salient features of this sample.
-        <ul>
-            <li>Create ToDo model and associate User in EF Code First. Goto Models\AppModel.cs </li>
-            <li>Only Authenticated Users can Create ToDo</li>
-            <li>When you create/list ToDo, we can filter by User. Look at ToDoController</li>
-            <li>Only Users in Role Admin can see all ToDoes. Look at ToDoController and All action.</li>
-        </ul>
-    </dd>
-</dl>
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Register a user, Login</dt>
+            <dd>
+                Click @Html.ActionLink("Register", "Register", "Account") and see the code in AccountController.cs and Register Action.
+                Click @Html.ActionLink("Log in", "Login", "Account") and see the code in AccountController.cs and Login Action.
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Basic Role Management</dt>
+            <dd>
+                Do Create, Update, List and Delete Roles.
+                Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Basic User Management</dt>
+            <dd>
+                Do Create, Update, List and Delete Users.
+                Assign a Role to a User.
+                Only Users In Role Admin can access this page. This uses the [Authorize] on the controller.
+            </dd>
+        </dl>
+    </li>
+    <li>
+        <dl>
+            <dt>Associating ToDoes with User</dt>
+            <dd>
+                This example shows how you can create a ToDo application where you can associate ToDoes with a User.
+                Following are the salient features of this sample.
+                <ul>
+                    <li>Create ToDo model and associate User in EF Code First. Goto Models\AppModel.cs </li>
+                    <li>Only Authenticated Users can Create ToDo</li>
+                    <li>When you create/list ToDo, we can filter by User. Look at ToDoController</li>
+                    <li>Only Users in Role Admin can see all ToDoes. Look at ToDoController and All action.</li>
+                </ul>
+            </dd>
+        </dl>
+    </li>
+</ol>

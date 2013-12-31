@@ -21,17 +21,17 @@ namespace AspnetIdentitySample.Controllers
         public RolesAdminController()
         {
             context = new MyDbContext();
-            UserManager = new UserManager<MyUser>(new UserStore<MyUser>(context));
+            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             RoleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
         }
 
-        public RolesAdminController(UserManager<MyUser> userManager, RoleManager<IdentityRole> roleManager)
+        public RolesAdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             UserManager = userManager;
             RoleManager = roleManager;
         }
 
-        public UserManager<MyUser> UserManager { get; private set; }
+        public UserManager<ApplicationUser> UserManager { get; private set; }
         public RoleManager<IdentityRole> RoleManager { get; private set; }
         public MyDbContext context { get; private set; }
         //

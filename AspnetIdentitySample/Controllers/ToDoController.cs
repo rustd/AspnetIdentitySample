@@ -17,11 +17,11 @@ namespace AspnetIdentitySample.Controllers
     public class ToDoController : Controller
     {
         private MyDbContext db;
-        private UserManager<MyUser> manager;
+        private UserManager<ApplicationUser> manager;
         public ToDoController()
         {
             db = new MyDbContext();
-            manager = new UserManager<MyUser>(new UserStore<MyUser>(db));
+            manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
         }
         
         // GET: /ToDo/

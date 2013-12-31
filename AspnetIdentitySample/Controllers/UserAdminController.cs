@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -21,17 +22,17 @@ namespace AspnetIdentitySample.Controllers
         public UsersAdminController()
         {
             context = new MyDbContext();
-            UserManager = new UserManager<MyUser>(new UserStore<MyUser>(context));
+            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
             RoleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(context));
         }
 
-        public UsersAdminController(UserManager<MyUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersAdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             UserManager = userManager;
             RoleManager = roleManager;
         }
 
-        public UserManager<MyUser> UserManager { get; private set; }
+        public UserManager<ApplicationUser> UserManager { get; private set; }
         public RoleManager<IdentityRole> RoleManager { get; private set; }
         public MyDbContext context { get; private set; }
 
@@ -70,7 +71,7 @@ namespace AspnetIdentitySample.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new MyUser();
+                var user = new ApplicationUser();
                 user.UserName = userViewModel.UserName;
                 user.HomeTown = userViewModel.HomeTown;
                 var adminresult = await UserManager.CreateAsync(user, userViewModel.Password);
@@ -129,7 +130,7 @@ namespace AspnetIdentitySample.Controllers
         // POST: /Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "UserName,Id,HomeTown")] MyUser formuser, string id, string RoleId)
+        public async Task<ActionResult> Edit([Bind(Include = "UserName,Id,HomeTown")] ApplicationUser formuser, string id, string RoleId)
         {
             if (id == null)
             {
