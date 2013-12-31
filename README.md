@@ -27,7 +27,7 @@ This is a sample which shows most of the common features of ASP.NET Identity. Fo
 <li>
     <b>Add profile data for the user</b>
         <a href="http://blogs.msdn.com/b/webdev/archive/2013/10/16/customizing-profile-information-in-asp-net-identity-in-vs-2013-templates.aspx">Please follow this tutorial.</a>
-<ul>
+                <ul>
                     <li>Add profile information in the Users Table</li>
                     <li>Add profile information in a different table</li>
                     <li>Look in Models\AppModel.cs for examples</li>
@@ -46,9 +46,9 @@ This is a sample which shows most of the common features of ASP.NET Identity. Fo
         <strong>Look in Models\AppModel.cs on how we override the table name in ModelCreating event of DbContext</strong>
         <a href="http://msdn.microsoft.com/en-US/data/jj591617">For more info on override ModelCreating please visit</a>
 </li>
-<li><b>Claims</b>
-  
-                You can store information about the user as Claims as well. This sample shows the different places where you can inject claims.
+<li>
+<b>Claims</b>
+You can store information about the user as Claims as well. This sample shows the different places where you can inject claims.
                 <ul>
                     <li>Add claims to the Claims table when the User regsiters an account. Look in AccountController\Register action where I am storing Gender as a Claim</li>
                     <li>
@@ -69,7 +69,7 @@ This is a sample which shows most of the common features of ASP.NET Identity. Fo
                     <li>Look at Controller\ClaimsIdentityFactoryController.cs on how we can register a ClaimsIdentityFactory with the UserManager</li>
                 </ul>
        
-    </li>
+ </li>
 <li>
        <b>Validation</b>
              When you create a User using a username or password, the Identity system performs validation on the username and password, and the passwords are hashed before they are
@@ -81,7 +81,7 @@ This is a sample which shows most of the common features of ASP.NET Identity. Fo
                     <li>Look at Controllers\ValidationController.cs Cutomize Action on how you can use the custom validators with the Managers</li>
                 </ul>
 
-    </li>
+</li>
 <li>
     <b>Register a user, Login</b>
     Click Register and see the code in AccountController.cs and Register Action.
