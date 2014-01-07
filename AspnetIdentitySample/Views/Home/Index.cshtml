@@ -5,7 +5,7 @@
 <div class="jumbotron">
     <h1>ASP.NET Identity</h1>
     <p class="lead">ASP.NET Identity is the membership system for ASP.NET apps</p>
-    <p><a href="http://www.asp.net/aspnet/identity" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+    <p><a href="http://www.asp.net/identity" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
 </div>
 <h3>Following are the features of ASP.NET Identity in this sample</h3>
 <ol>
@@ -86,7 +86,7 @@
                 For most apps this is sufficient. ClaimsIdentityFactory provides a central place where you can control what are the default set of claims generated for the User. In my example, let's say I do
                 not care about Roles and I want to store LastLoginTime as a Claim, then I can provide my own ClaimsIdentityFactory to the UserManager.
                 <ul>
-                    <li>Look at Validation\MyClaimsIdentityFactory.cs for an implementation</li>
+                    <li>Look at IdentityExtensions\MyClaimsIdentityFactory.cs for an implementation</li>
                     <li>Look at Controller\ClaimsIdentityFactoryController.cs on how we can register a ClaimsIdentityFactory with the UserManager</li>
                 </ul>
             </dd>
@@ -101,7 +101,7 @@
                 or you can write your own custom validators and register them with the Manager. You can use the same approach for UserManager and RoleManager.
                 <ul>
                     <li>Look at Controllers\ValidationController.cs Default Action on how to tweak the default settings for the Validators</li>
-                    <li>Look at IdentityExtensibility\MyValidation.cs to see how you can implement the different validators</li>
+                    <li>Look at IdentityExtensions\MyValidation.cs to see how you can implement the different validators</li>
                     <li>Look at Controllers\ValidationController.cs Cutomize Action on how you can use the custom validators with the Managers</li>
                 </ul>
 
