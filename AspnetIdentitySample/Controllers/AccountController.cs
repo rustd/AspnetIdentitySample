@@ -80,9 +80,6 @@ namespace AspnetIdentitySample.Controllers
                 user.HomeTown = model.HomeTown;
                 user.MyUserInfo = new MyUserInfo() { FirstName = model.UserName };
 
-                if (!UserManager.Users.Any())
-                    user.Roles.Add(new IdentityUserRole { RoleId = "Admin" });
-
                 // Store Gender as Claim
                 user.Claims.Add(new IdentityUserClaim() { ClaimType = ClaimTypes.Gender, ClaimValue = "Male" });
 
