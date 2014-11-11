@@ -1,14 +1,10 @@
-﻿using AspnetIdentitySample.IdentityExtensions;
+﻿using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using AspnetIdentitySample.IdentityExtensions;
 using AspnetIdentitySample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.Owin.Security;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -30,7 +26,7 @@ namespace AspnetIdentitySample.Controllers
         {
             var context = new MyDbContext();
             var UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context));
-            
+
             // The default Validators that the UserManager uses are UserValidator and MinimumLengthValidator
             // You can tweak some of the settings as follows
             // This example sets the Password length to be 3 characters
@@ -38,7 +34,7 @@ namespace AspnetIdentitySample.Controllers
             {
                 AllowOnlyAlphanumericUserNames = false
             };
-             UserManager.PasswordValidator = new MinimumLengthValidator(3);
+            UserManager.PasswordValidator = new MinimumLengthValidator(3);
 
 
             if (ModelState.IsValid)
@@ -103,7 +99,7 @@ namespace AspnetIdentitySample.Controllers
             }
 
             // If we got this far, something failed, redisplay form
-            return View("Index",model);
+            return View("Index", model);
         }
     }
 }
