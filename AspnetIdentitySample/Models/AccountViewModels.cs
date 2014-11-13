@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace AspnetIdentitySample.Models 
+namespace AspnetIdentitySample.Models
 {
     public class ExternalLoginConfirmationViewModel
     {

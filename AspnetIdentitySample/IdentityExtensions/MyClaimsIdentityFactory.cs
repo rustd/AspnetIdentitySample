@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using AspnetIdentitySample.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Identity;
 
 namespace AspnetIdentitySample.IdentityExtensions
 {
-    public class MyClaimsIdentityFactory<TUser> : ClaimsIdentityFactory<TUser> where TUser : IUser<string>
+    public class MyClaimsIdentityFactory<TUser> : ClaimsIdentityFactory<TUser, string> where TUser : class, Microsoft.AspNet.Identity.IUser<string>
     {
         internal const string IdentityProviderClaimType = "http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider";
         internal const string DefaultIdentityProviderClaimValue = "ASP.NET Identity";
@@ -23,9 +19,9 @@ namespace AspnetIdentitySample.IdentityExtensions
             LastLoginTimeType = "LoginTime";
         }
 
-        public async override Task<ClaimsIdentity> CreateAsync(UserManager<TUser,string> manager, TUser user, string authenticationType)
+        public async override Task<ClaimsIdentity> CreateAsync(UserManager<TUser, string> manager, TUser user, string authenticationType)
         {
- 	        // This is a standard place where you can register your ClaimsIdentityFactory.
+            // This is a standard place where you can register your ClaimsIdentityFactory.
             // This class generates a ClaimsIdentity for the given user
             // By default it adds Roles, UserName, UserId as Claims for the User
             // You can add more standard set of claims here if you want to.
@@ -36,7 +32,7 @@ namespace AspnetIdentitySample.IdentityExtensions
             id.AddClaim(new Claim(UserIdClaimType, user.Id.ToString(), ClaimValueTypes.String));
             id.AddClaim(new Claim(UserNameClaimType, user.UserName, ClaimValueTypes.String));
             id.AddClaim(new Claim(IdentityProviderClaimType, DefaultIdentityProviderClaimValue, ClaimValueTypes.String));
-            
+
             // Add the claims for the login time
             id.AddClaim(new Claim(LastLoginTimeType, DateTime.Now.ToString()));
 
@@ -47,8 +43,8 @@ namespace AspnetIdentitySample.IdentityExtensions
             return id;
         }
 
-        public string UserIdClaimType { get; set; }
-        public string UserNameClaimType { get; set; }
+        //public string UserIdClaimType { get; set; }
+        //public string UserNameClaimType { get; set; }
         public string LastLoginTimeType { get; set; }
     }
 }

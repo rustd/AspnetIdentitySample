@@ -1,17 +1,10 @@
-﻿using AspnetIdentitySample.Models;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using System.Linq;
-using System.Data.Entity;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+using AspnetIdentitySample.Models;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -108,10 +101,10 @@ namespace AspnetIdentitySample.Controllers
             if (ModelState.IsValid)
             {
                 var result = await RoleManager.UpdateAsync(role);
-                if(!result.Succeeded)
+                if (!result.Succeeded)
                 {
                     ModelState.AddModelError("", result.Errors.First().ToString());
-                    return View();   
+                    return View();
                 }
                 return RedirectToAction("Index");
             }

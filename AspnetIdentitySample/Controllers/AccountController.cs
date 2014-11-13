@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Security.Claims;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using AspnetIdentitySample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
-using AspnetIdentitySample.Models;
-using Owin;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -82,12 +79,12 @@ namespace AspnetIdentitySample.Controllers
                 var user = new ApplicationUser() { UserName = model.UserName };
                 user.HomeTown = model.HomeTown;
                 user.MyUserInfo = new MyUserInfo() { FirstName = model.UserName };
-                
+
                 // Store Gender as Claim
                 user.Claims.Add(new IdentityUserClaim() { ClaimType = ClaimTypes.Gender, ClaimValue = "Male" });
-                    
+
                 var result = await UserManager.CreateAsync(user, model.Password);
-                
+
                 if (result.Succeeded)
                 {
                     await SignInAsync(user, isPersistent: false);
@@ -274,7 +271,7 @@ namespace AspnetIdentitySample.Controllers
                     return View("ExternalLoginFailure");
                 }
                 var user = new ApplicationUser() { UserName = model.UserName };
-                
+
                 var result = await UserManager.CreateAsync(user);
                 if (result.Succeeded)
                 {

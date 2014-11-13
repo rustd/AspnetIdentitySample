@@ -1,14 +1,10 @@
-﻿using AspnetIdentitySample.IdentityExtensions;
+﻿using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using AspnetIdentitySample.IdentityExtensions;
 using AspnetIdentitySample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.Owin.Security;
 
 namespace AspnetIdentitySample.Controllers
 {
@@ -30,7 +26,7 @@ namespace AspnetIdentitySample.Controllers
             // This claimsIdentity should have a claim called LastLoginTime
             var authManager = HttpContext.GetOwinContext().Authentication;
             authManager.SignIn(claimsIdentity);
-            
+
             return RedirectToLocal(returnUrl);
         }
         private ActionResult RedirectToLocal(string returnUrl)

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20617.1 PREVIEW
+VisualStudioVersion = 12.0.30915.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspnetIdentitySample", "AspnetIdentitySample\AspnetIdentitySample.csproj", "{52B084D8-16C8-4D3C-BAC0-BC727D95F9E5}"
 EndProject

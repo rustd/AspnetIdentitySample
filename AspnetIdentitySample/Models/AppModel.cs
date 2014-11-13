@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Web;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace AspnetIdentitySample.Models
 {
@@ -14,7 +9,7 @@ namespace AspnetIdentitySample.Models
         // HomeTown will be stored in the same table as Users
         public string HomeTown { get; set; }
         public virtual ICollection<ToDo> ToDoes { get; set; }
-  
+
         // FirstName & LastName will be stored in a different table called MyUserInfo
         public virtual MyUserInfo MyUserInfo { get; set; }
     }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net;
-using System.Web;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using AspnetIdentitySample.Models;
 using Microsoft.AspNet.Identity;
@@ -23,7 +19,7 @@ namespace AspnetIdentitySample.Controllers
             db = new MyDbContext();
             manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(db));
         }
-        
+
         // GET: /ToDo/
         // GET ToDo for the logged in user
         public ActionResult Index()
@@ -33,7 +29,7 @@ namespace AspnetIdentitySample.Controllers
         }
 
         // GET: /ToDo/All
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> All()
         {
             return View(await db.ToDoes.ToListAsync());
@@ -42,7 +38,7 @@ namespace AspnetIdentitySample.Controllers
         // GET: /ToDo/Details/5
         public async Task<ActionResult> Details(int? id)
         {
-            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId()); 
+            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -70,9 +66,9 @@ namespace AspnetIdentitySample.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include="Id,Description,IsDone")] ToDo todo)
+        public async Task<ActionResult> Create([Bind(Include = "Id,Description,IsDone")] ToDo todo)
         {
-            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId()); 
+            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
             if (ModelState.IsValid)
             {
                 todo.User = currentUser;
@@ -87,7 +83,7 @@ namespace AspnetIdentitySample.Controllers
         // GET: /ToDo/Edit/5
         public async Task<ActionResult> Edit(int? id)
         {
-            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId()); 
+            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -109,7 +105,7 @@ namespace AspnetIdentitySample.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include="Id,Description,IsDone")] ToDo todo)
+        public async Task<ActionResult> Edit([Bind(Include = "Id,Description,IsDone")] ToDo todo)
         {
             if (ModelState.IsValid)
             {
@@ -123,7 +119,7 @@ namespace AspnetIdentitySample.Controllers
         // GET: /ToDo/Delete/5
         public async Task<ActionResult> Delete(int? id)
         {
-            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId()); 
+            var currentUser = await manager.FindByIdAsync(User.Identity.GetUserId());
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -136,7 +132,7 @@ namespace AspnetIdentitySample.Controllers
             if (todo.User.Id != currentUser.Id)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.Unauthorized);
-            } 
+            }
             return View(todo);
         }
 
