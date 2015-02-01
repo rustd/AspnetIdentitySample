@@ -42,8 +42,6 @@ namespace AspnetIdentitySample.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             // Change the name of the table to be Users instead of AspNetUsers
             modelBuilder.Entity<IdentityUser>()
                 .ToTable("Users");
